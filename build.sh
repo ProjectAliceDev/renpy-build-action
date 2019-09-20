@@ -14,6 +14,6 @@ mv ./${sdk_name} ../renpy
 echo "Building the project..."
 rm -rf game/README.html
 ../renpy/renpy.sh ../renpy/launcher distribute .
-built_dir=$(ls | grep -dists)
+built_dir=$(ls | grep \-dists)
 echo ::set-output name=dir::$built_dir
-echo ::set-output name=version::${build_dir#'-dists'}
+echo ::set-output name=version::${build_dir%'-dists'}

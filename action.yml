@@ -1,8 +1,6 @@
 name: 'Build Ren'Py Project'
+author: 'Project Alice'
 description: 'Build your VN project using a specified Ren'Py SDK version'
-branding:
-  color: 'gray-dark'
-  icon: 'archive'
 inputs:
   sdk-version:
     description: 'The version of the Ren'Py SDK to use'
@@ -13,3 +11,6 @@ runs:
   image: 'Dockerfile'
   args:
     - ${{ inputs.sdk-version }}
+branding:
+  color: 'gray-dark'
+  icon: 'archive'

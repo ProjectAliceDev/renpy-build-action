@@ -6,6 +6,11 @@ inputs:
     description: "The version of the Ren'Py SDK to use"
     required: true
     default: '7.3.2'
+outputs:
+  dir:
+    description: "The directory where the distributed files exist"
+  version:
+    description: "The built version of the project"
 runs:
   using: 'docker'
   image: 'Dockerfile'

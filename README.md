@@ -9,6 +9,9 @@ This GitHub action allows you to make distributable builds of a Ren'Py visual no
   uses: ProjectAliceDev/renpy-build-action@master
   with:
     sdk-version: '6.99.12.4'
+  env:
+    SDL_AUDIODRIVER: dummy
+    SDL_VIDEODRIVER: dummy
 ```
 
 > Note: This action will assume that the Ren'Py project is the repository's root rather than a separate directory.

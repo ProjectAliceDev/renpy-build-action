@@ -1,0 +1,15 @@
+name: 'Build Ren'Py Project'
+description: 'Build your VN project using a specified Ren'Py SDK version'
+branding:
+  color: 'gray-dark'
+  icon: 'archive'
+inputs:
+  sdk-version:
+    description: 'The version of the Ren'Py SDK to use'
+    required: true
+    default: '7.3.2'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - ${{ inputs.sdk-version }}

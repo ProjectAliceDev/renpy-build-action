@@ -1,9 +1,9 @@
-name: 'Build Ren'Py Project'
+name: "Build Ren'Py Project"
 author: 'Project Alice'
-description: 'Build your VN project using a specified Ren'Py SDK version'
+description: "Build your VN project using a specified Ren'Py SDK version"
 inputs:
   sdk-version:
-    description: 'The version of the Ren'Py SDK to use'
+    description: "The version of the Ren'Py SDK to use"
     required: true
     default: '7.3.2'
 runs:

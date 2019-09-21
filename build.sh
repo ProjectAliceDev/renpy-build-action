@@ -12,12 +12,14 @@ rm ./${sdk_name}.tar.bz2
 mv ./${sdk_name} ../renpy
 
 echo "Building the project..."
+if [[ -z "$2" ]]; then
+  ../renpy/renpy.sh ../renpy/launcher distribute $2
 
-if [[ -z $2 && $2 != "." ]]; then
-  cd $2
+else
+  ../renpy/renpy.sh ../renpy/launcher distribute .
+
 fi
 
-../renpy/renpy.sh ../renpy/launcher distribute .
 built_dir=$(ls | grep '\-dists')
 echo ::set-output name=dir::$built_dir
 echo ::set-output name=version::${built_dir%'-dists'}

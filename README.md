@@ -14,15 +14,11 @@ This GitHub action allows you to make distributable builds of a Ren'Py visual no
     SDL_VIDEODRIVER: dummy
 ```
 
-> Note: This action will assume that the Ren'Py project is the repository's root rather than a separate directory.
-
 **Required Parameters:**
 
 - `sdk-version`: The version of the Ren'Py SDK to use while building. Will default to `7.3.2` if none is found.
 
-**Optional Parameters:**
-
-- `project-dir`: The directory where the project exists
+- `project-dir`: The directory where the project exists. Will default to `'.'` (root) if none is found.
 
 ### Outputs
 

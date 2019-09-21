@@ -20,6 +20,10 @@ This GitHub action allows you to make distributable builds of a Ren'Py visual no
 
 - `sdk-version`: The version of the Ren'Py SDK to use while building. Will default to `7.3.2` if none is found.
 
+**Optional Parameters:**
+
+- `project-dir`: The directory where the project exists
+
 ### Outputs
 
 - `dir`: The directory where the files were built to.

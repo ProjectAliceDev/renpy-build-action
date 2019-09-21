@@ -11,11 +11,12 @@ tar -xf ./${sdk_name}.tar.bz2
 rm ./${sdk_name}.tar.bz2
 mv ./${sdk_name} ../renpy
 
-echo "Building the project..."
 if [ -z "$2" ]; then
+  echo "Building the project at $2..."
   ../renpy/renpy.sh ../renpy/launcher distribute $2
 
 else
+  echo "Building the project at root..."
   ../renpy/renpy.sh ../renpy/launcher distribute .
 
 fi

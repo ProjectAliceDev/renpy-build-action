@@ -12,7 +12,7 @@ rm ./${sdk_name}.tar.bz2
 mv ./${sdk_name} ../renpy
 
 echo "Building the project..."
-if [[ -z "$2" ]]; then
+if [ -z "$2" ]; then
   ../renpy/renpy.sh ../renpy/launcher distribute $2
 
 else

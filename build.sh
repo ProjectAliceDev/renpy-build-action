@@ -2,7 +2,7 @@
 
 sdk_name=renpy-$1-sdk
 echo "Downloading the specified SDK (${sdk_name})..."
-wget https://www.renpy.org/dl/$1/${sdk_name}.tar.bz2
+wget -q https://www.renpy.org/dl/$1/${sdk_name}.tar.bz2
 clear
 
 echo "Downloaded SDK version (${sdk_name})."

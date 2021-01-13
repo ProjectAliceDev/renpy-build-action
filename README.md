@@ -21,6 +21,8 @@ This GitHub action allows you to make distributable builds of a Ren'Py visual no
 
 - `project-dir`: The directory where the project exists. Will default to `'.'` (root) if none is found.
 
+> :warning: If you are targeting Ren'Py v7.4.0+, you must use v1.1.2 of this action or greater.
+
 ### Outputs
 
 - `dir`: The directory where the files were built to.

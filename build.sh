@@ -11,6 +11,18 @@ tar -xf ./${sdk_name}.tar.bz2
 rm ./${sdk_name}.tar.bz2
 mv ./${sdk_name} ../renpy
 
+# Note: This will be checked regardless of the version of Ren'Py. Caution is
+# advised.
+if [ -d "$2/old-game" ]; then
+    echo "old-game directory detected."
+    if [ -z "$(ls -A "$2/old-game")" ]; then
+        echo "ERROR: old-game is empty. This will cause incompatibility issues."
+        echo "Please refer to the Ren'Py documentation on the old-game directory"
+        echo "for more information."
+        exit 1
+    fi
+fi
+
 echo "Building the project at $2..."
 if ../renpy/renpy.sh ../renpy/launcher distribute $2; then
     built_dir=$(ls | grep '\-dists')

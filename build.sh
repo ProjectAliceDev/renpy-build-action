@@ -17,8 +17,9 @@ if [ -d "$2/old-game" ]; then
     echo "old-game directory detected."
     if [ -z "$(ls -A "$2/old-game")" ]; then
         echo "ERROR: old-game is empty. This will cause incompatibility issues."
-        echo "Please refer to the Ren'Py documentation on the old-game directory"
-        echo "for more information."
+        echo "For more information on how the old-game directory works and why"
+        echo "this directory should not be empty, please refer to the documentation"
+        echo "at: https://www.renpy.org/doc/html/build.html#old-game."
         exit 1
     fi
 fi

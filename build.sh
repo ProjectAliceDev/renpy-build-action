@@ -24,8 +24,17 @@ if [ -d "$2/old-game" ]; then
     fi
 fi
 
+case $3 in
+    pc|mac|linux|market|web|android)
+        COMMAND="../renpy/renpy.sh ../renpy/launcher distribute --package $3 $2"
+        ;;
+    *)
+        COMMAND="../renpy/renpy.sh ../renpy/launcher distribute $2"
+        ;;
+esac
+
 echo "Building the project at $2..."
-if ../renpy/renpy.sh ../renpy/launcher distribute $2; then
+if $COMMAND; then
     built_dir=$(ls | grep '\-dists')
     echo ::set-output name=dir::$built_dir
     echo ::set-output name=version::${built_dir%'-dists'}

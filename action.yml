@@ -10,6 +10,17 @@ inputs:
     description: "The path to the directory where the project exists"
     required: true
     default: '.'
+  package:
+    description: "Specific package to build for"
+    required: false
+    type: choice
+    options:
+      - pc
+      - mac
+      - linux
+      - market
+      - web
+      - android
 outputs:
   dir:
     description: "The directory where the distributed files exist"
@@ -21,6 +32,7 @@ runs:
   args:
     - ${{ inputs.sdk-version }}
     - ${{ inputs.project-dir }}
+    - ${{ inputs.package }}
 branding:
   color: 'gray-dark'
   icon: 'archive'

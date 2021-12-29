@@ -23,6 +23,10 @@ This GitHub action allows you to make distributable builds of a Ren'Py visual no
 
 > :warning: If you are targeting Ren'Py v7.4.0+, you must use v1.1.2 of this action or greater.
 
+**Optional Parameters:**
+
+- `package`: Specific package to build for. Must be one of the following: `pc`, `mac`, `linux`, `market`, `web`, `android`. Will build for all packages if value is not supported.
+
 ### Outputs
 
 - `dir`: The directory where the files were built to.

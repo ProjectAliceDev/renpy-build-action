@@ -21,6 +21,11 @@ inputs:
       - market
       - web
       - android
+  add-steam-lib:
+    description: "Whether to include Steam lib"
+    required: false
+    default: false
+    type: boolean
 outputs:
   dir:
     description: "The directory where the distributed files exist"
@@ -33,6 +38,7 @@ runs:
     - ${{ inputs.sdk-version }}
     - ${{ inputs.project-dir }}
     - ${{ inputs.package }}
+    - ${{ inputs.add-steam-lib }}
 branding:
   color: 'gray-dark'
   icon: 'archive'

@@ -11,6 +11,19 @@ tar -xf ./${sdk_name}.tar.bz2
 rm ./${sdk_name}.tar.bz2
 mv ./${sdk_name} ../renpy
 
+if [ $4 = "true" ]; then
+    steam_lib_name=renpy-$1-steam
+    echo "Downloading Steam lib (${steam_lib_name})..."
+    wget -q https://www.renpy.org/dl/$1/${steam_lib_name}.zip
+    clear
+
+    echo "Downloaded Steam lib (${steam_lib_name})..."
+    echo "Adding Steam lib to Renpy"
+    unzip -qq ./${steam_lib_name} -d ${steam_lib_name}
+    rsync -a ${steam_lib_name}/ ../renpy
+    rm -rf ${steam_lib_name} ${steam_lib_name}.zip 
+fi
+
 # Note: This will be checked regardless of the version of Ren'Py. Caution is
 # advised.
 if [ -d "$2/old-game" ]; then

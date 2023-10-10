@@ -27,6 +27,8 @@ This GitHub action allows you to make distributable builds of a Ren'Py visual no
 
 - `package`: Specific package to build for. Must be one of the following: `pc`, `mac`, `linux`, `market`, `web`, `android`. Will build for all packages if value is not supported.
 
+- `add-steam-lib`: Whether to include Steam lib. This is necessary if you want your build to work with Steam achievements. Defaults to `false`.
+
 ### Outputs
 
 - `dir`: The directory where the files were built to.

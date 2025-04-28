@@ -41,7 +41,9 @@ if [[ -v $3[@] ]]; then
   for i in "${3[@]}"
     do
         if [[ $i == 'android' ]]; then
-            COMMAND="../renpy/renpy.sh ../renpy/launcher android_build ./"
+            COMMAND="../renpy/renpy.sh ../renpy/launcher android_build $2"
+        elif [[ $i == 'web' ]]; then
+            COMMAND="../renpy/renpy.sh ../renpy/launcher web_build $2"
         else
             COMMAND="../renpy/renpy.sh ../renpy/launcher distribute --package $i $2"
         fi
@@ -56,11 +58,14 @@ if [[ -v $3[@] ]]; then
     done
 else
     case $3 in
-        pc|win|mac|linux|market|web)
+        pc|win|mac|linux|market)
             COMMAND="../renpy/renpy.sh ../renpy/launcher distribute --package $3 $2"
             ;;
+        web)
+            COMMAND="../renpy/renpy.sh ../renpy/launcher web_build $2"
+            ;;
         android)
-            COMMAND="../renpy/renpy.sh ../renpy/launcher android_build ./"
+            COMMAND="../renpy/renpy.sh ../renpy/launcher android_build $2"
             ;;
         *)
             COMMAND="../renpy/renpy.sh ../renpy/launcher distribute $2"

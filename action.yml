@@ -13,7 +13,7 @@ inputs:
   package:
     description: "Specific package to build for"
     required: false
-    type: choice
+    type: string
     options:
       - pc
       - win

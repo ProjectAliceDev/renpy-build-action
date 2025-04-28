@@ -13,15 +13,7 @@ inputs:
   package:
     description: "Specific package to build for"
     required: false
-    type: choice
-    options:
-      - pc
-      - win
-      - mac
-      - linux
-      - market
-      - web
-      - android
+    type: string
   add-steam-lib:
     description: "Whether to include Steam lib"
     required: false

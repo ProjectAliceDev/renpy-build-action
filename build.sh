@@ -37,20 +37,48 @@ if [ -d "$2/old-game" ]; then
     fi
 fi
 
-case $3 in
-    pc|mac|linux|market|web|android)
-        COMMAND="../renpy/renpy.sh ../renpy/launcher distribute --package $3 $2"
-        ;;
-    *)
-        COMMAND="../renpy/renpy.sh ../renpy/launcher distribute $2"
-        ;;
-esac
-
-echo "Building the project at $2..."
-if $COMMAND; then
-    built_dir=$(ls | grep '\-dists')
-    echo ::set-output name=dir::$built_dir
-    echo ::set-output name=version::${built_dir%'-dists'}
+if [[ "$(declare -p -- "$3")" == "declare -a "* ]]; then
+  for i in "${3[@]}"
+    do
+        if [ $i == 'android' ]; then
+            COMMAND="../renpy/renpy.sh ../renpy/launcher android_build $2"
+        elif [ $i == 'web' ]; then
+            COMMAND="../renpy/renpy.sh ../renpy/launcher web_build $2"
+        else
+            COMMAND="../renpy/renpy.sh ../renpy/launcher distribute --package $i $2"
+        fi
+        echo "Building $i"
+        if $COMMAND; then
+            built_dir=$(ls | grep '\-dists')
+            echo dir=$built_dir >> $GITHUB_OUTPUT
+            echo version=${built_dir%'-dists'} >> $GITHUB_OUTPUT
+        else
+            return 1
+        fi
+    done
 else
-    return 1
+    case $3 in
+        pc|win|mac|linux|market)
+            COMMAND="../renpy/renpy.sh ../renpy/launcher distribute --package $3 $2"
+            ;;
+        web)
+            COMMAND="../renpy/renpy.sh ../renpy/launcher web_build $2"
+            ;;
+        android)
+            COMMAND="../renpy/renpy.sh ../renpy/launcher android_build $2"
+            ;;
+        *)
+            COMMAND="../renpy/renpy.sh ../renpy/launcher distribute $2"
+            ;;
+    esac
+    
+    echo "Building the project at $2..."
+    if $COMMAND; then
+        built_dir=$(ls | grep '\-dists')
+        echo dir=$built_dir >> $GITHUB_OUTPUT
+        echo version=${built_dir%'-dists'} >> $GITHUB_OUTPUT
+    else
+        return 1
+    fi
 fi
+

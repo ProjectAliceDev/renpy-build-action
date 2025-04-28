@@ -44,8 +44,8 @@ if [[ -v $3[@] ]]; then
        echo "Building $i"
         if $COMMAND; then
             built_dir=$(ls | grep '\-dists')
-            echo ::set-output name=dir::$built_dir
-            echo ::set-output name=version::${built_dir%'-dists'}
+            echo dir=$built_dir >> $GITHUB_OUTPUT
+            echo version=${built_dir%'-dists'} >> $GITHUB_OUTPUT
         else
             return 1
         fi
@@ -63,8 +63,8 @@ else
     echo "Building the project at $2..."
     if $COMMAND; then
         built_dir=$(ls | grep '\-dists')
-        echo ::set-output name=dir::$built_dir
-        echo ::set-output name=version::${built_dir%'-dists'}
+        echo dir=$built_dir >> $GITHUB_OUTPUT
+        echo version=${built_dir%'-dists'} >> $GITHUB_OUTPUT
     else
         return 1
     fi

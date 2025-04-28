@@ -37,7 +37,7 @@ if [ -d "$2/old-game" ]; then
     fi
 fi
 
-if [ -v $3[@] ]; then
+if [[ "$(declare -p -- "$3")" == "declare -a "* ]]; then
   for i in "${3[@]}"
     do
         if [ $i == 'android' ]; then

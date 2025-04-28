@@ -37,12 +37,12 @@ if [ -d "$2/old-game" ]; then
     fi
 fi
 
-if [[ -v $3[@] ]]; then
+if [ -v $3[@] ]; then
   for i in "${3[@]}"
     do
-        if [[ $i == 'android' ]]; then
+        if [ $i == 'android' ]; then
             COMMAND="../renpy/renpy.sh ../renpy/launcher android_build $2"
-        elif [[ $i == 'web' ]]; then
+        elif [ $i == 'web' ]; then
             COMMAND="../renpy/renpy.sh ../renpy/launcher web_build $2"
         else
             COMMAND="../renpy/renpy.sh ../renpy/launcher distribute --package $i $2"

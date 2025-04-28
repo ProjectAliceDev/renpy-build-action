@@ -37,20 +37,36 @@ if [ -d "$2/old-game" ]; then
     fi
 fi
 
-case $3 in
-    pc|mac|linux|market|web|android)
-        COMMAND="../renpy/renpy.sh ../renpy/launcher distribute --package $3 $2"
-        ;;
-    *)
-        COMMAND="../renpy/renpy.sh ../renpy/launcher distribute $2"
-        ;;
-esac
-
-echo "Building the project at $2..."
-if $COMMAND; then
-    built_dir=$(ls | grep '\-dists')
-    echo ::set-output name=dir::$built_dir
-    echo ::set-output name=version::${built_dir%'-dists'}
+if [[ -v $3[@] ]]; then
+  for i in "${3[@]}"
+    do
+       COMMAND="../renpy/renpy.sh ../renpy/launcher distribute --package $i $2"
+       echo "Building $i"
+        if $COMMAND; then
+            built_dir=$(ls | grep '\-dists')
+            echo ::set-output name=dir::$built_dir
+            echo ::set-output name=version::${built_dir%'-dists'}
+        else
+            return 1
+        fi
+    done
 else
-    return 1
+    case $3 in
+        pc|mac|linux|market|web|android)
+            COMMAND="../renpy/renpy.sh ../renpy/launcher distribute --package $3 $2"
+            ;;
+        *)
+            COMMAND="../renpy/renpy.sh ../renpy/launcher distribute $2"
+            ;;
+    esac
+    
+    echo "Building the project at $2..."
+    if $COMMAND; then
+        built_dir=$(ls | grep '\-dists')
+        echo ::set-output name=dir::$built_dir
+        echo ::set-output name=version::${built_dir%'-dists'}
+    else
+        return 1
+    fi
 fi
+

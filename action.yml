@@ -16,6 +16,7 @@ inputs:
     type: choice
     options:
       - pc
+      - win
       - mac
       - linux
       - market

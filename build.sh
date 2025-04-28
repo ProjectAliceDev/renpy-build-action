@@ -40,8 +40,12 @@ fi
 if [[ -v $3[@] ]]; then
   for i in "${3[@]}"
     do
-       COMMAND="../renpy/renpy.sh ../renpy/launcher distribute --package $i $2"
-       echo "Building $i"
+        if [[ $i == 'android' ]]; then
+            COMMAND="../renpy/renpy.sh ../renpy/launcher android_build ./"
+        else
+            COMMAND="../renpy/renpy.sh ../renpy/launcher distribute --package $i $2"
+        fi
+        echo "Building $i"
         if $COMMAND; then
             built_dir=$(ls | grep '\-dists')
             echo dir=$built_dir >> $GITHUB_OUTPUT
@@ -52,8 +56,11 @@ if [[ -v $3[@] ]]; then
     done
 else
     case $3 in
-        pc|win|mac|linux|market|web|android)
+        pc|win|mac|linux|market|web)
             COMMAND="../renpy/renpy.sh ../renpy/launcher distribute --package $3 $2"
+            ;;
+        android)
+            COMMAND="../renpy/renpy.sh ../renpy/launcher android_build ./"
             ;;
         *)
             COMMAND="../renpy/renpy.sh ../renpy/launcher distribute $2"

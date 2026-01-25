@@ -11,17 +11,25 @@ tar -xf ./${sdk_name}.tar.bz2
 rm ./${sdk_name}.tar.bz2
 mv ./${sdk_name} ../renpy
 
-if [ $4 = "true" ]; then
-    steam_lib_name=renpy-$1-steam
-    echo "Downloading Steam lib (${steam_lib_name})..."
-    wget -q https://www.renpy.org/dl/$1/${steam_lib_name}.zip
+# used for steam and web
+install_lib() {
+    version="$1"
+    lib="$2"
+    name="renpy-$version-$lib"
+
+    echo "Downloading ${lib} lib (${name})..."
+    wget -q "https://www.renpy.org/dl/${version}/${name}.zip"
     clear
 
-    echo "Downloaded Steam lib (${steam_lib_name})..."
+    echo "Downloaded ${lib} lib (${name})..."
     echo "Adding Steam lib to Renpy"
-    unzip -qq ./${steam_lib_name} -d ${steam_lib_name}
-    rsync -a ${steam_lib_name}/ ../renpy
-    rm -rf ${steam_lib_name} ${steam_lib_name}.zip 
+    unzip -qq ./${name} -d ${name}
+    rsync -a ${name}/ ../renpy
+    rm -rf ${name} ${name}.zip 
+}
+
+if [ $4 = "true" ]; then
+    install_lib "$1" steam
 fi
 
 # Note: This will be checked regardless of the version of Ren'Py. Caution is
@@ -43,6 +51,7 @@ if [[ "$(declare -p -- "$3")" == "declare -a "* ]]; then
         if [ $i == 'android' ]; then
             COMMAND="../renpy/renpy.sh ../renpy/launcher android_build $2"
         elif [ $i == 'web' ]; then
+            install_lib "$1" web
             COMMAND="../renpy/renpy.sh ../renpy/launcher web_build $2"
         else
             COMMAND="../renpy/renpy.sh ../renpy/launcher distribute --package $i $2"
@@ -62,6 +71,7 @@ else
             COMMAND="../renpy/renpy.sh ../renpy/launcher distribute --package $3 $2"
             ;;
         web)
+            install_lib "$1" web
             COMMAND="../renpy/renpy.sh ../renpy/launcher web_build $2"
             ;;
         android)

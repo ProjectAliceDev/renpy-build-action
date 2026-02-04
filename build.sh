@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 sdk_name=renpy-$1-sdk
 echo "Downloading the specified SDK (${sdk_name})..."

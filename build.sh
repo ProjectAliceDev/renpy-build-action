@@ -26,44 +26,19 @@ install_lib() {
     echo "Added '${lib}' lib (${name})..."
 }
 
-if [ $4 = "true" ]; then
-    install_lib "$1" steam
-fi
-
-# Note: This will be checked regardless of the version of Ren'Py. Caution is
-# advised.
-if [ -d "$2/old-game" ]; then
-    echo "old-game directory detected."
-    if [ -z "$(ls -A "$2/old-game")" ]; then
-        echo "ERROR: old-game is empty. This will cause incompatibility issues."
-        echo "For more information on how the old-game directory works and why"
-        echo "this directory should not be empty, please refer to the documentation"
-        echo "at: https://www.renpy.org/doc/html/build.html#old-game."
-        exit 1
-    fi
-fi
-
-if [[ "$(declare -p -- "$3")" == "declare -a "* ]]; then
-  for i in "${3[@]}"
-    do
-        if [ $i == 'android' ]; then
-            COMMAND="../renpy/renpy.sh ../renpy/launcher android_build $2"
-        elif [ $i == 'web' ]; then
-            install_lib "$1" web
-            COMMAND="../renpy/renpy.sh ../renpy/launcher web_build $2"
-        else
-            COMMAND="../renpy/renpy.sh ../renpy/launcher distribute --package $i $2"
-        fi
-        echo "Building $i"
-        if $COMMAND; then
-            built_dir=$(ls | grep '\-dists')
-            echo dir=$built_dir >> $GITHUB_OUTPUT
-            echo version=${built_dir%'-dists'} >> $GITHUB_OUTPUT
-        else
-            return 1
-        fi
-    done
-else
+# Builds a Ren'Py distribution for a target platform
+#
+# Args:
+#   $1: Version
+#   $2: Project path
+#   $3: Target platform (pc|win|mac|linux|market|web|android). Default: All.
+#
+# Outputs:
+#   Writes `dir` and `version` to $GITHUB_OUTPUT on success
+#
+# Returns:
+#   0 on success; non-zero on failure.
+build_platform() {
     case $3 in
         pc|win|mac|linux|market)
             COMMAND="../renpy/renpy.sh ../renpy/launcher distribute --package $3 $2"
@@ -80,7 +55,7 @@ else
             ;;
     esac
     
-    echo "Building the project at $2..."
+    echo "Building the project for platform '$3' at '$2'..."
     if $COMMAND; then
         built_dir=$(ls | grep '\-dists')
         echo dir=$built_dir >> $GITHUB_OUTPUT
@@ -88,5 +63,28 @@ else
     else
         return 1
     fi
+}
+
+if [ $4 = "true" ]; then
+    install_lib "$1" steam
 fi
 
+# Note: This will be checked regardless of the version of Ren'Py. Caution is advised.
+if [ -d "$2/old-game" ]; then
+    echo "old-game directory detected."
+    if [ -z "$(ls -A "$2/old-game")" ]; then
+        echo "ERROR: old-game is empty. This will cause incompatibility issues."
+        echo "For more information on how the old-game directory works and why"
+        echo "this directory should not be empty, please refer to the documentation"
+        echo "at: https://www.renpy.org/doc/html/build.html#old-game."
+        exit 1
+    fi
+fi
+
+# Split $3 into an array of target platforms
+[[ -n ${3-} ]] && read -r -a target_platforms <<<"$3" || target_platforms=("all")
+
+# Build for listed platforms
+for i in "${target_platforms[@]}"; do
+    build_platform "$1" "$2" "$i"
+done

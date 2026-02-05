@@ -17,15 +17,14 @@ install_lib() {
     lib="$2"
     name="renpy-$version-$lib"
 
-    echo "Downloading ${lib} lib (${name})..."
+    echo "Downloading '${lib}' lib (${name})..."
     wget -q "https://www.renpy.org/dl/${version}/${name}.zip"
-    clear
 
-    echo "Downloaded ${lib} lib (${name})..."
-    echo "Adding Steam lib to Renpy"
-    unzip -qq ./${name} -d ${name}
-    rsync -a ${name}/ ../renpy
-    rm -rf ${name} ${name}.zip 
+    echo "Adding '${lib}' lib to Renpy..."
+    unzip -qq "./${name}.zip" -d "${name}"
+    rsync -a "${name}/" ../renpy
+    rm -rf "${name}" "${name}.zip"
+    echo "Added '${lib}' lib (${name})..."
 }
 
 if [ $4 = "true" ]; then

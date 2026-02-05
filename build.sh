@@ -10,7 +10,7 @@ rm ./${sdk_name}.tar.bz2
 mv ./${sdk_name} ../renpy
 echo "Setup SDK version (${sdk_name})."
 
-# used for steam and web
+# used for steam, web, rapt
 install_lib() {
     version="$1"
     lib="$2"
@@ -48,6 +48,8 @@ build_platform() {
             COMMAND=(../renpy/renpy.sh ../renpy/launcher web_build "$2")
             ;;
         android)
+            install_lib "$1" rapt
+            echo "${ANDROID_SDK_ROOT}" > ../renpy/rapt/sdk.txt
             COMMAND=(../renpy/renpy.sh ../renpy/launcher android_build "$2")
             ;;
         *)

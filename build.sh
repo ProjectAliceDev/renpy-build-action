@@ -10,6 +10,13 @@ rm ./${sdk_name}.tar.bz2
 mv ./${sdk_name} ../renpy
 echo "Setup SDK version (${sdk_name})."
 
+# Get the project version by using renpy's json-dump command
+tmp="$(mktemp)"
+project_dir="$2"
+../renpy/renpy.sh --json-dump "$tmp" "$project_dir" quit >/dev/null
+project_version="$(jq -r '.build.version // .config.version // empty' "$tmp")"
+rm -f "$tmp"
+
 # used for steam, web, rapt
 install_lib() {
     version="$1"
@@ -35,9 +42,6 @@ install_lib() {
 #
 # Outputs:
 #   Writes `dir` and `version` to $GITHUB_OUTPUT on success
-#
-# Returns:
-#   0 on success; non-zero on failure.
 build_platform() {
     case "$3" in
         pc|win|mac|linux|market)
@@ -58,13 +62,37 @@ build_platform() {
     esac
 
     echo "Building the project for platform '$3' at '$2'..."
-    if "${COMMAND[@]}"; then
-        built_dir=$(ls -1 | grep -m1 -- '-dists$')
-        echo "dir=$built_dir" >> $GITHUB_OUTPUT
-        echo "version=${built_dir%'-dists'}" >> $GITHUB_OUTPUT
-    else
-        return 1
+    "${COMMAND[@]}"
+}
+
+# Moves compiled distribution files to a single, pre-defined location
+#
+# Args:
+#   $1: Output folder
+#
+# Outputs:
+#   Writes `dir` and `version` to $GITHUB_OUTPUT
+collect_distributions() {
+    local output_dir="$1"
+    local built_dir="$(find . -maxdepth 1 -type d -name '*-dists' -print -quit || true)"
+
+    mkdir -p "$output_dir"
+
+    if [[ -n "$built_dir" ]]; then
+        rsync -a --remove-source-files "$built_dir/" "$output_dir/"
+        rmdir "$built_dir" 2>/dev/null || true
     fi
+
+    if [[ -d "../renpy/rapt/bin/" ]]; then
+        rsync -a -m --remove-source-files \
+            --include='*/' \
+            --include='*-release.apk' \
+            --exclude='*' \
+            ../renpy/rapt/bin/ "$output_dir/"
+    fi
+
+    echo "dir=$output_dir" >> $GITHUB_OUTPUT
+    echo "version=$project_version" >> $GITHUB_OUTPUT
 }
 
 if [ $4 = "true" ]; then
@@ -90,3 +118,5 @@ fi
 for i in "${target_platforms[@]}"; do
     build_platform "$1" "$2" "$i"
 done
+
+collect_distributions "$5"

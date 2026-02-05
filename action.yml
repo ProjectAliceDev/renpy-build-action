@@ -19,6 +19,10 @@ inputs:
     required: false
     default: false
     type: boolean
+  output-dir:
+    description: "The directory where the built files will be placed"
+    required: false
+    default: './dist'
 outputs:
   dir:
     description: "The directory where the distributed files exist"
@@ -32,6 +36,7 @@ runs:
     - ${{ inputs.project-dir }}
     - ${{ inputs.package }}
     - ${{ inputs.add-steam-lib }}
+    - ${{ inputs.output-dir }}
 branding:
   color: 'gray-dark'
   icon: 'archive'

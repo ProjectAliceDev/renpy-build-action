@@ -39,27 +39,27 @@ install_lib() {
 # Returns:
 #   0 on success; non-zero on failure.
 build_platform() {
-    case $3 in
+    case "$3" in
         pc|win|mac|linux|market)
-            COMMAND="../renpy/renpy.sh ../renpy/launcher distribute --package $3 $2"
+            COMMAND=(../renpy/renpy.sh ../renpy/launcher distribute --package "$3" "$2")
             ;;
         web)
             install_lib "$1" web
-            COMMAND="../renpy/renpy.sh ../renpy/launcher web_build $2"
+            COMMAND=(../renpy/renpy.sh ../renpy/launcher web_build "$2")
             ;;
         android)
-            COMMAND="../renpy/renpy.sh ../renpy/launcher android_build $2"
+            COMMAND=(../renpy/renpy.sh ../renpy/launcher android_build "$2")
             ;;
         *)
-            COMMAND="../renpy/renpy.sh ../renpy/launcher distribute $2"
+            COMMAND=(../renpy/renpy.sh ../renpy/launcher distribute "$2")
             ;;
     esac
-    
+
     echo "Building the project for platform '$3' at '$2'..."
-    if $COMMAND; then
-        built_dir=$(ls | grep '\-dists')
-        echo dir=$built_dir >> $GITHUB_OUTPUT
-        echo version=${built_dir%'-dists'} >> $GITHUB_OUTPUT
+    if "${COMMAND[@]}"; then
+        built_dir=$(ls -1 | grep -m1 -- '-dists$')
+        echo "dir=$built_dir" >> $GITHUB_OUTPUT
+        echo "version=${built_dir%'-dists'}" >> $GITHUB_OUTPUT
     else
         return 1
     fi

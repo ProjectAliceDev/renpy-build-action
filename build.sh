@@ -1,42 +1,117 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
-sdk_name=renpy-$1-sdk
+sdk_version="$1"
+project_dir="$2"
+targets="$3"
+add_steam_lib="$4"
+output_dir="$5"
+
+sdk_name="renpy-$sdk_version-sdk"
+renpy_dir="../renpy"
+renpy_sh="$renpy_dir/renpy.sh"
+renpy_launcher="$renpy_dir/launcher"
+
 echo "Downloading the specified SDK (${sdk_name})..."
-wget -q https://www.renpy.org/dl/$1/${sdk_name}.tar.bz2
-clear
+wget -q "https://www.renpy.org/dl/$sdk_version/${sdk_name}.tar.bz2"
 
-echo "Downloaded SDK version (${sdk_name})."
 echo "Setting up the specified SDK (${sdk_name})..."
 tar -xf ./${sdk_name}.tar.bz2
 rm ./${sdk_name}.tar.bz2
-mv ./${sdk_name} ../renpy
+mv ./${sdk_name} "$renpy_dir"
+echo "Setup SDK version (${sdk_name})."
 
-# used for steam and web
+# Get the project version by using renpy's json-dump command
+tmp="$(mktemp)"
+"$renpy_sh" --json-dump "$tmp" "$project_dir" quit >/dev/null
+project_version="$(jq -r '.build.version // .config.version // empty' "$tmp")"
+rm -f "$tmp"
+
+# used for steam, web, rapt
 install_lib() {
-    version="$1"
-    lib="$2"
-    name="renpy-$version-$lib"
+    local lib="$1"
+    local name="renpy-$sdk_version-$lib"
 
-    echo "Downloading ${lib} lib (${name})..."
-    wget -q "https://www.renpy.org/dl/${version}/${name}.zip"
-    clear
+    echo "Downloading '${lib}' lib (${name})..."
+    wget -q "https://www.renpy.org/dl/${sdk_version}/${name}.zip"
 
-    echo "Downloaded ${lib} lib (${name})..."
-    echo "Adding Steam lib to Renpy"
-    unzip -qq ./${name} -d ${name}
-    rsync -a ${name}/ ../renpy
-    rm -rf ${name} ${name}.zip 
+    echo "Adding '${lib}' lib to Renpy..."
+    unzip -qq "./${name}.zip" -d "${name}"
+    rsync -a "${name}/" "$renpy_dir"
+    rm -rf "${name}" "${name}.zip"
+    echo "Added '${lib}' lib (${name})..."
 }
 
-if [ $4 = "true" ]; then
-    install_lib "$1" steam
+# Builds a Ren'Py distribution for a target platform
+#
+# Args:
+#   $1: Target platform (pc|win|mac|linux|market|web|android). Default: All.
+#
+# Outputs:
+#   Writes `dir` and `version` to $GITHUB_OUTPUT on success
+build_platform() {
+    local target="$1"
+    local COMMAND=("$renpy_sh" "$renpy_launcher")
+
+    case "$target" in
+        pc|win|mac|linux|market)
+            COMMAND+=(distribute --package "$target" "$project_dir")
+            ;;
+        web)
+            install_lib web
+            COMMAND+=(web_build "$project_dir")
+            ;;
+        android)
+            install_lib rapt
+            echo "${ANDROID_SDK_ROOT}" > $renpy_dir/rapt/sdk.txt
+            COMMAND+=(android_build "$project_dir")
+            ;;
+        *)
+            COMMAND+=(distribute "$project_dir")
+            ;;
+    esac
+
+    echo "Building the project for platform '$target' at '$project_dir'..."
+    "${COMMAND[@]}"
+}
+
+# Moves compiled distribution files to a single, pre-defined location
+#
+# Args:
+#   $1: Output folder
+#
+# Outputs:
+#   Writes `dir` and `version` to $GITHUB_OUTPUT
+collect_distributions() {
+    local output_dir="$1"
+    local built_dir="$(find . -maxdepth 1 -type d -name '*-dists' -print -quit || true)"
+
+    mkdir -p "$output_dir"
+
+    if [[ -n "$built_dir" ]]; then
+        rsync -a --remove-source-files "$built_dir/" "$output_dir/"
+        rmdir "$built_dir" 2>/dev/null || true
+    fi
+
+    if [[ -d "$renpy_dir/rapt/bin/" ]]; then
+        rsync -a -m --remove-source-files \
+            --include='*/' \
+            --include='*-release.apk' \
+            --exclude='*' \
+            "$renpy_dir/rapt/bin/" "$output_dir/"
+    fi
+
+    echo "dir=$output_dir" >> $GITHUB_OUTPUT
+    echo "version=$project_version" >> $GITHUB_OUTPUT
+}
+
+if [ "$add_steam_lib" = "true" ]; then
+    install_lib steam
 fi
 
-# Note: This will be checked regardless of the version of Ren'Py. Caution is
-# advised.
-if [ -d "$2/old-game" ]; then
+# Note: This will be checked regardless of the version of Ren'Py. Caution is advised.
+if [ -d "$project_dir/old-game" ]; then
     echo "old-game directory detected."
-    if [ -z "$(ls -A "$2/old-game")" ]; then
+    if [ -z "$(ls -A "$project_dir/old-game")" ]; then
         echo "ERROR: old-game is empty. This will cause incompatibility issues."
         echo "For more information on how the old-game directory works and why"
         echo "this directory should not be empty, please refer to the documentation"
@@ -45,50 +120,12 @@ if [ -d "$2/old-game" ]; then
     fi
 fi
 
-if [[ "$(declare -p -- "$3")" == "declare -a "* ]]; then
-  for i in "${3[@]}"
-    do
-        if [ $i == 'android' ]; then
-            COMMAND="../renpy/renpy.sh ../renpy/launcher android_build $2"
-        elif [ $i == 'web' ]; then
-            install_lib "$1" web
-            COMMAND="../renpy/renpy.sh ../renpy/launcher web_build $2"
-        else
-            COMMAND="../renpy/renpy.sh ../renpy/launcher distribute --package $i $2"
-        fi
-        echo "Building $i"
-        if $COMMAND; then
-            built_dir=$(ls | grep '\-dists')
-            echo dir=$built_dir >> $GITHUB_OUTPUT
-            echo version=${built_dir%'-dists'} >> $GITHUB_OUTPUT
-        else
-            return 1
-        fi
-    done
-else
-    case $3 in
-        pc|win|mac|linux|market)
-            COMMAND="../renpy/renpy.sh ../renpy/launcher distribute --package $3 $2"
-            ;;
-        web)
-            install_lib "$1" web
-            COMMAND="../renpy/renpy.sh ../renpy/launcher web_build $2"
-            ;;
-        android)
-            COMMAND="../renpy/renpy.sh ../renpy/launcher android_build $2"
-            ;;
-        *)
-            COMMAND="../renpy/renpy.sh ../renpy/launcher distribute $2"
-            ;;
-    esac
-    
-    echo "Building the project at $2..."
-    if $COMMAND; then
-        built_dir=$(ls | grep '\-dists')
-        echo dir=$built_dir >> $GITHUB_OUTPUT
-        echo version=${built_dir%'-dists'} >> $GITHUB_OUTPUT
-    else
-        return 1
-    fi
-fi
+# Split $targets into an array of target platforms
+[[ -n ${targets} ]] && read -r -a target_platforms <<<"$targets" || target_platforms=("all")
 
+# Build for listed platforms
+for i in "${target_platforms[@]}"; do
+    build_platform "$i"
+done
+
+collect_distributions "$output_dir"
